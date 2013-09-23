@@ -1,0 +1,7 @@
+-define(UINT8(X),  X:8/unsigned-little-integer).
+-define(UINT16(X), X:16/unsigned-little-integer).
+-define(UINT32(X), X:32/unsigned-little-integer).
+-define(UINT64(X), X:64/unsigned-little-integer).
+-define(FLOAT(X),  X:32/float-little).
+-define(BINARY(X), (X)/binary).
+-define(STRING(X), ?BINARY(list_to_binary(X))).
