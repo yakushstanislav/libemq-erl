@@ -227,8 +227,11 @@ decode({queue_pop, Response}) ->
 decode({queue_confirm, Response}) ->
 	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_CONFIRM, Response);
 
-%% TODO: .queue_subscribe
-%% TODO: .queue_unsubscribe
+decode({queue_subscribe, Response}) ->
+	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_SUBSCRIBE, Response);
+
+decode({queue_unsubscribe, Response}) ->
+	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_UNSUBSCRIBE, Response);
 
 decode({queue_purge, Response}) ->
 	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_PURGE, Response);
@@ -283,10 +286,17 @@ decode({channel_rename, Response}) ->
 decode({channel_publish, Response}) ->
 	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_PUBLISH, Response);
 
-%% TODO: .channel_subscribe
-%% TODO: .channel_psubscribe
-%% TODO: .channel_unsubscribe
-%% TODO: .channel_punsubscribe
+decode({channel_subscribe, Response}) ->
+	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_SUBSCRIBE, Response);
+
+decode({channel_psubscribe, Response}) ->
+	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_PSUBSCRIBE, Response);
+
+decode({channel_unsubscribe, Response}) ->
+	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_UNSUBSCRIBE, Response);
+
+decode({channel_punsubscribe, Response}) ->
+	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_PUNSUBSCRIBE, Response);
 
 decode({channel_delete, Response}) ->
 	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_DELETE, Response).

@@ -208,8 +208,15 @@ encode({queue_confirm, {Name, Tag}}) ->
 	ReqName = encode_string(Name, 64),
 	<<ReqHeader/binary, ReqName/binary, ?UINT64(Tag)>>;
 
-%% TODO: .queue_subscribe
-%% TODO: .queue_unsubscribe
+encode({queue_subscribe, {Name, Flags}}) ->
+	ReqHeader = encode_request_header(?EMQ_PROTOCOL_CMD_QUEUE_SUBSCRIBE, 0, 68),
+	ReqName = encode_string(Name, 64),
+	<<ReqHeader/binary, ReqName/binary, ?UINT32(Flags)>>;
+
+encode({queue_unsubscribe, {Name}}) ->
+	ReqHeader = encode_request_header(?EMQ_PROTOCOL_CMD_QUEUE_UNSUBSCRIBE, 0, 64),
+	ReqName = encode_string(Name, 64),
+	<<ReqHeader/binary, ReqName/binary>>;
 
 encode({queue_purge, {Name}}) ->
 	ReqHeader = encode_request_header(?EMQ_PROTOCOL_CMD_QUEUE_PURGE, 0, 64),
@@ -297,10 +304,29 @@ encode({channel_publish, {Name, Topic, Msg}}) ->
 	ReqTopic = encode_string(Topic, 32),
 	<<ReqHeader/binary, ReqName/binary, ReqTopic/binary, Msg/binary>>;
 
-%% TODO: .channel_subscribe
-%% TODO: .channel_psubscribe
-%% TODO: .channel_unsubscribe
-%% TODO: .channel_punsubscribe
+encode({channel_subscribe, {Name, Topic}}) ->
+	ReqHeader = encode_request_header(?EMQ_PROTOCOL_CMD_CHANNEL_SUBSCRIBE, 0, 96),
+	ReqName = encode_string(Name, 64),
+	ReqTopic = encode_string(Topic, 32),
+	<<ReqHeader/binary, ReqName/binary, ReqTopic/binary>>;
+
+encode({channel_psubscribe, {Name, Pattern}}) ->
+	ReqHeader = encode_request_header(?EMQ_PROTOCOL_CMD_CHANNEL_PSUBSCRIBE, 0, 96),
+	ReqName = encode_string(Name, 64),
+	ReqPattern = encode_string(Pattern, 32),
+	<<ReqHeader/binary, ReqName/binary, ReqPattern/binary>>;
+
+encode({channel_unsubscribe, {Name, Topic}}) ->
+	ReqHeader = encode_request_header(?EMQ_PROTOCOL_CMD_CHANNEL_UNSUBSCRIBE, 0, 96),
+	ReqName = encode_string(Name, 64),
+	ReqTopic = encode_string(Topic, 32),
+	<<ReqHeader/binary, ReqName/binary, ReqTopic/binary>>;
+
+encode({channel_punsubscribe, {Name, Pattern}}) ->
+	ReqHeader = encode_request_header(?EMQ_PROTOCOL_CMD_CHANNEL_PUNSUBSCRIBE, 0, 96),
+	ReqName = encode_string(Name, 64),
+	ReqPattern = encode_string(Pattern, 32),
+	<<ReqHeader/binary, ReqName/binary, ReqPattern/binary>>;
 
 encode({channel_delete, {Name}}) ->
 	ReqHeader = encode_request_header(?EMQ_PROTOCOL_CMD_CHANNEL_DELETE, 0, 64),

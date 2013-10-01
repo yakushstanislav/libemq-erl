@@ -128,7 +128,7 @@ queue_confirm(Server, Name, Tag) when ?is_string(Name, 64) ->
 	gen_server:call(Server, {queue_confirm, {Name, Tag}}).
 
 queue_subscribe(Server, Name, Flags) when ?is_string(Name, 64) ->
-	gen_server:call(Server, {queue_subscribe, {Name, Flags, self()}}).
+	gen_server:call(Server, {queue_subscribe, {Name, Flags}}).
 
 queue_unsubscribe(Server, Name) when ?is_string(Name, 64) ->
 	gen_server:call(Server, {queue_unsubscribe, {Name}}).
@@ -189,10 +189,10 @@ channel_publish(Server, Name, Topic, Msg) when ?is_string(Name, 64) and ?is_stri
 	gen_server:call(Server, {channel_publish, {Name, Topic, Msg}}, infinity).
 
 channel_subscribe(Server, Name, Topic) when ?is_string(Name, 64) and ?is_string(Topic, 32) ->
-	gen_server:call(Server, {channel_subscribe, {Name, Topic, self()}}).
+	gen_server:call(Server, {channel_subscribe, {Name, Topic}}).
 
 channel_psubscribe(Server, Name, Pattern) when ?is_string(Name, 64) and ?is_string(Pattern, 32) ->
-	gen_server:call(Server, {channel_psubscribe, {Name, Pattern, self()}}).
+	gen_server:call(Server, {channel_psubscribe, {Name, Pattern}}).
 
 channel_unsubscribe(Server, Name, Topic) when ?is_string(Name, 64) and ?is_string(Topic, 32) ->
 	gen_server:call(Server, {channel_unsubscribe, {Name, Topic}}).
