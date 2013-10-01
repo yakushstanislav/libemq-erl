@@ -81,6 +81,9 @@ encode_queue_flags([durable|T], Value) ->
 encode_queue_flags(Flags) ->
 	encode_queue_flags(Flags, ?EMQ_QUEUE_NONE).
 
+encode_queue_subscribe_flags(msg) -> 0;
+encode_queue_subscribe_flags(notify) -> 1.
+
 encode_route_flags([], Value) ->
 	Value;
 
@@ -211,7 +214,8 @@ encode({queue_confirm, {Name, Tag}}) ->
 encode({queue_subscribe, {Name, Flags}}) ->
 	ReqHeader = encode_request_header(?EMQ_PROTOCOL_CMD_QUEUE_SUBSCRIBE, 0, 68),
 	ReqName = encode_string(Name, 64),
-	<<ReqHeader/binary, ReqName/binary, ?UINT32(Flags)>>;
+	ReqFlags = encode_queue_subscribe_flags(Flags),
+	<<ReqHeader/binary, ReqName/binary, ?UINT32(ReqFlags)>>;
 
 encode({queue_unsubscribe, {Name}}) ->
 	ReqHeader = encode_request_header(?EMQ_PROTOCOL_CMD_QUEUE_UNSUBSCRIBE, 0, 64),

@@ -127,7 +127,7 @@ queue_pop(Server, Name, Timeout) when ?is_string(Name, 64) and is_integer(Timeou
 queue_confirm(Server, Name, Tag) when ?is_string(Name, 64) ->
 	gen_server:call(Server, {queue_confirm, {Name, Tag}}).
 
-queue_subscribe(Server, Name, Flags) when ?is_string(Name, 64) ->
+queue_subscribe(Server, Name, Flags) when ?is_string(Name, 64) and is_atom(Flags) ->
 	gen_server:call(Server, {queue_subscribe, {Name, Flags}}).
 
 queue_unsubscribe(Server, Name) when ?is_string(Name, 64) ->
