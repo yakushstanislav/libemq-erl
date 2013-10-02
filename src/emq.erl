@@ -26,7 +26,7 @@
 -module(emq).
 
 -export([connect/1, connect/2, connect/3, disconnect/1]).
--export([auth/3, ping/1, stat/1, save/2, flush/2]).
+-export([auth/3, ping/1, stat/1, save/2, flush/2, wait_event/1]).
 -export([user_create/4, user_list/1, user_rename/3, user_set_perm/3, user_delete/2]).
 -export([queue_create/5, queue_declare/2, queue_exist/2, queue_list/1, queue_rename/3, queue_size/2,
 	queue_push/3, queue_push/4, queue_get/2, queue_pop/2, queue_pop/3, queue_confirm/3, queue_subscribe/3,
@@ -71,6 +71,9 @@ save(Server, Mode) when (Mode == async) or (Mode == sync) ->
 
 flush(Server, Flags) when is_list(Flags) ->
 	gen_server:call(Server, {flush, {Flags}}).
+
+wait_event(Server) ->
+	gen_server:call(Server, wait_event, infinity).
 
 %% Functions for work with users
 

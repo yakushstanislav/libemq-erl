@@ -44,6 +44,10 @@ init({Host, Port}) ->
 			{stop, Error}
 	end.
 
+handle_call(wait_event, _From, #state{socket = Socket} = State) ->
+	Response = receive_response(Socket),
+	{reply, decode({wait_event, Response}), State};
+
 handle_call({Command, _Params} = Msg, _From, #state{socket = Socket} = State) ->
 	gen_tcp:send(Socket, encode(Msg)),
 	Response = receive_response(Socket),

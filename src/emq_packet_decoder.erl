@@ -31,12 +31,13 @@
 -include("protocol.hrl").
 -include("emq.hrl").
 
-decode_response_header_bodylen(<<?UINT16(Magic), ?UINT8(_Cmd), ?UINT8(_Status), ?UINT32(Bodylen)>>) ->
-	Magic = ?EMQ_PROTOCOL_RES,
+decode_response_header_bodylen(<<?UINT16(?EMQ_PROTOCOL_RES), ?UINT8(_Cmd), ?UINT8(_Status), ?UINT32(Bodylen)>>) ->
+	Bodylen;
+
+decode_response_header_bodylen(<<?UINT16(?EMQ_PROTOCOL_EVENT), ?UINT8(_Cmd), ?UINT8(_Status), ?UINT32(Bodylen)>>) ->
 	Bodylen.
 
-decode_response_header(<<?UINT16(Magic), ?UINT8(Cmd), ?UINT8(Status), ?UINT32(Bodylen), Body/binary>>) ->
-	Magic = ?EMQ_PROTOCOL_RES,
+decode_response_header(<<?UINT16(_Magic), ?UINT8(Cmd), ?UINT8(Status), ?UINT32(Bodylen), Body/binary>>) ->
 	{Cmd, Status, Bodylen, Body}.
 
 decode_response_header_status(Command, Response) ->
@@ -159,6 +160,21 @@ decode_msg(<<>>) ->
 
 decode_msg(<<?UINT64(Tag), Msg/binary>>) ->
 	{Tag, Msg}.
+
+decode_event({?EMQ_PROTOCOL_CMD_QUEUE_SUBSCRIBE, ?EMQ_PROTOCOL_EVENT_NOTIFY, _Bodylen, Body}) ->
+	{event, {queue, decode_string(Body)}};
+
+decode_event({?EMQ_PROTOCOL_CMD_QUEUE_SUBSCRIBE, ?EMQ_PROTOCOL_EVENT_MESSAGE, _Bodylen, Body}) ->
+	<<Queue:64/binary, Msg/binary>> = Body,
+	{event, {queue, decode_string(Queue), Msg}};
+
+decode_event({?EMQ_PROTOCOL_CMD_CHANNEL_SUBSCRIBE, ?EMQ_PROTOCOL_EVENT_MESSAGE, _Bodylen, Body}) ->
+	<<Channel:64/binary, Topic:32/binary, Msg/binary>> = Body,
+	{event, {channel, decode_string(Channel), decode_string(Topic), Msg}};
+
+decode_event({?EMQ_PROTOCOL_CMD_CHANNEL_PSUBSCRIBE, ?EMQ_PROTOCOL_EVENT_MESSAGE, _Bodylen, Body}) ->
+	<<Channel:64/binary, Topic:32/binary, Pattern:32/binary, Msg/binary>> = Body,
+	{event, {channel, decode_string(Channel), decode_string(Topic), decode_string(Pattern), Msg}}.
 
 decode({auth, Response}) ->
 	decode_response_header_status(?EMQ_PROTOCOL_CMD_AUTH, Response);
@@ -299,4 +315,7 @@ decode({channel_punsubscribe, Response}) ->
 	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_PUNSUBSCRIBE, Response);
 
 decode({channel_delete, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_DELETE, Response).
+	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_DELETE, Response);
+
+decode({wait_event, Response}) ->
+	decode_event(decode_response_header(Response)).
