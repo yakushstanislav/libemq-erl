@@ -32,7 +32,7 @@
 -import(emq_packet_encoder, [encode/1]).
 -import(emq_packet_decoder, [decode_response_header_bodylen/1, decode/1]).
 
--define(TCP_OPTS, [binary, {packet, 0}, {active, false}]).
+-define(TCP_OPTS, [binary, {packet, 0}, {active, false}, {nodelay, true}]).
 
 -record(state, {socket}).
 
