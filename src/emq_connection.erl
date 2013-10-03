@@ -30,7 +30,7 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
 -import(emq_packet_encoder, [encode/1]).
--import(emq_packet_decoder, [decode_response_header_bodylen/1, decode/1]).
+-import(emq_packet_decoder, [decode_response_bodylen/1, decode/1]).
 
 -define(TCP_OPTS, [binary, {packet, 0}, {active, false}, {nodelay, true}]).
 
@@ -76,7 +76,7 @@ terminate(normal, #state{socket = Socket}) ->
 
 receive_response(Socket) ->
 	{ok, Header} = gen_tcp:recv(Socket, 8),
-	Bodylen = decode_response_header_bodylen(Header),
+	Bodylen = decode_response_bodylen(Header),
 	Body =
 	if
 		Bodylen > 0 ->

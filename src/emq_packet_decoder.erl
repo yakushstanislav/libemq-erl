@@ -25,23 +25,23 @@
 
 -module(emq_packet_decoder).
 
--export([decode_response_header_bodylen/1, decode/1]).
+-export([decode_response_bodylen/1, decode/1]).
 
 -include("helper.hrl").
 -include("protocol.hrl").
 -include("emq.hrl").
 
-decode_response_header_bodylen(<<?UINT16(?EMQ_PROTOCOL_RES), ?UINT8(_Cmd), ?UINT8(_Status), ?UINT32(Bodylen)>>) ->
+decode_response_bodylen(<<?UINT16(?EMQ_PROTOCOL_RES), ?UINT8(_Cmd), ?UINT8(_Status), ?UINT32(Bodylen)>>) ->
 	Bodylen;
 
-decode_response_header_bodylen(<<?UINT16(?EMQ_PROTOCOL_EVENT), ?UINT8(_Cmd), ?UINT8(_Status), ?UINT32(Bodylen)>>) ->
+decode_response_bodylen(<<?UINT16(?EMQ_PROTOCOL_EVENT), ?UINT8(_Cmd), ?UINT8(_Status), ?UINT32(Bodylen)>>) ->
 	Bodylen.
 
-decode_response_header(<<?UINT16(_Magic), ?UINT8(Cmd), ?UINT8(Status), ?UINT32(Bodylen), Body/binary>>) ->
+decode_response(<<?UINT16(_Magic), ?UINT8(Cmd), ?UINT8(Status), ?UINT32(Bodylen), Body/binary>>) ->
 	{Cmd, Status, Bodylen, Body}.
 
-decode_response_header_status(Command, Response) ->
-	{Command, Status, _Bodylen, _Body} = decode_response_header(Response),
+decode_response_status(Command, Response) ->
+	{Command, Status, _Bodylen, _Body} = decode_response(Response),
 	decode_status(Status).
 
 decode_string(Bin) ->
@@ -177,145 +177,145 @@ decode_event({?EMQ_PROTOCOL_CMD_CHANNEL_PSUBSCRIBE, ?EMQ_PROTOCOL_EVENT_MESSAGE,
 	{event, {channel, decode_string(Channel), decode_string(Topic), decode_string(Pattern), Msg}}.
 
 decode({auth, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_AUTH, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_AUTH, Response);
 
 decode({ping, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_PING, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_PING, Response);
 
 decode({stat, Response}) ->
-	{?EMQ_PROTOCOL_CMD_STAT, Status, _Bodylen, Body} = decode_response_header(Response),
+	{?EMQ_PROTOCOL_CMD_STAT, Status, _Bodylen, Body} = decode_response(Response),
 	{decode_status(Status), decode_stat(Body)};
 
 decode({save, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_SAVE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_SAVE, Response);
 
 decode({flush, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_FLUSH, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_FLUSH, Response);
 
 decode({user_create, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_USER_CREATE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_USER_CREATE, Response);
 
 decode({user_list, Response}) ->
-	{?EMQ_PROTOCOL_CMD_USER_LIST, Status, _Bodylen, Body} = decode_response_header(Response),
+	{?EMQ_PROTOCOL_CMD_USER_LIST, Status, _Bodylen, Body} = decode_response(Response),
 	{decode_status(Status), decode_user_list(Body)};
 
 decode({user_rename, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_USER_RENAME, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_USER_RENAME, Response);
 
 decode({user_set_perm, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_USER_SET_PERM, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_USER_SET_PERM, Response);
 
 decode({user_delete, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_USER_DELETE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_USER_DELETE, Response);
 
 decode({queue_create, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_CREATE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_QUEUE_CREATE, Response);
 
 decode({queue_declare, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_DECLARE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_QUEUE_DECLARE, Response);
 
 decode({queue_exist, Response}) ->
-	{?EMQ_PROTOCOL_CMD_QUEUE_EXIST, Status, _Bodylen, Body} = decode_response_header(Response),
+	{?EMQ_PROTOCOL_CMD_QUEUE_EXIST, Status, _Bodylen, Body} = decode_response(Response),
 	{decode_status(Status), decode_exist_status(Body)};
 
 decode({queue_list, Response}) ->
-	{?EMQ_PROTOCOL_CMD_QUEUE_LIST, Status, _Bodylen, Body} = decode_response_header(Response),
+	{?EMQ_PROTOCOL_CMD_QUEUE_LIST, Status, _Bodylen, Body} = decode_response(Response),
 	{decode_status(Status), decode_queue_list(Body)};
 
 decode({queue_rename, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_RENAME, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_QUEUE_RENAME, Response);
 
 decode({queue_size, Response}) ->
-	{?EMQ_PROTOCOL_CMD_QUEUE_SIZE, Status, _Bodylen, Body} = decode_response_header(Response),
+	{?EMQ_PROTOCOL_CMD_QUEUE_SIZE, Status, _Bodylen, Body} = decode_response(Response),
 	{decode_status(Status), decode_queue_size(Body)};
 
 decode({queue_push, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_PUSH, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_QUEUE_PUSH, Response);
 
 decode({queue_get, Response}) ->
-	{?EMQ_PROTOCOL_CMD_QUEUE_GET, Status, _Bodylen, Body} = decode_response_header(Response),
+	{?EMQ_PROTOCOL_CMD_QUEUE_GET, Status, _Bodylen, Body} = decode_response(Response),
 	{decode_status(Status), decode_msg(Body)};
 
 decode({queue_pop, Response}) ->
-	{?EMQ_PROTOCOL_CMD_QUEUE_POP, Status, _Bodylen, Body} = decode_response_header(Response),
+	{?EMQ_PROTOCOL_CMD_QUEUE_POP, Status, _Bodylen, Body} = decode_response(Response),
 	{decode_status(Status), decode_msg(Body)};
 
 decode({queue_confirm, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_CONFIRM, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_QUEUE_CONFIRM, Response);
 
 decode({queue_subscribe, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_SUBSCRIBE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_QUEUE_SUBSCRIBE, Response);
 
 decode({queue_unsubscribe, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_UNSUBSCRIBE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_QUEUE_UNSUBSCRIBE, Response);
 
 decode({queue_purge, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_PURGE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_QUEUE_PURGE, Response);
 
 decode({queue_delete, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_QUEUE_DELETE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_QUEUE_DELETE, Response);
 
 decode({route_create, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_ROUTE_CREATE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_ROUTE_CREATE, Response);
 
 decode({route_exist, Response}) ->
-	{?EMQ_PROTOCOL_CMD_ROUTE_EXIST, Status, _Bodylen, Body} = decode_response_header(Response),
+	{?EMQ_PROTOCOL_CMD_ROUTE_EXIST, Status, _Bodylen, Body} = decode_response(Response),
 	{decode_status(Status), decode_exist_status(Body)};
 
 decode({route_list, Response}) ->
-	{?EMQ_PROTOCOL_CMD_ROUTE_LIST, Status, _Bodylen, Body} = decode_response_header(Response),
+	{?EMQ_PROTOCOL_CMD_ROUTE_LIST, Status, _Bodylen, Body} = decode_response(Response),
 	{decode_status(Status), decode_route_list(Body)};
 
 decode({route_keys, Response}) ->
-	{?EMQ_PROTOCOL_CMD_ROUTE_KEYS, Status, _Bodylen, Body} = decode_response_header(Response),
+	{?EMQ_PROTOCOL_CMD_ROUTE_KEYS, Status, _Bodylen, Body} = decode_response(Response),
 	{decode_status(Status), decode_route_keys(Body)};
 
 decode({route_rename, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_ROUTE_RENAME, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_ROUTE_RENAME, Response);
 
 decode({route_bind, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_ROUTE_BIND, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_ROUTE_BIND, Response);
 
 decode({route_unbind, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_ROUTE_UNBIND, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_ROUTE_UNBIND, Response);
 
 decode({route_push, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_ROUTE_PUSH, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_ROUTE_PUSH, Response);
 
 decode({route_delete, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_ROUTE_DELETE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_ROUTE_DELETE, Response);
 
 decode({channel_create, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_CREATE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_CHANNEL_CREATE, Response);
 
 decode({channel_exist, Response}) ->
-	{?EMQ_PROTOCOL_CMD_CHANNEL_EXIST, Status, _Bodylen, Body} = decode_response_header(Response),
+	{?EMQ_PROTOCOL_CMD_CHANNEL_EXIST, Status, _Bodylen, Body} = decode_response(Response),
 	{decode_status(Status), decode_exist_status(Body)};
 
 decode({channel_list, Response}) ->
-	{?EMQ_PROTOCOL_CMD_CHANNEL_LIST, Status, _Bodylen, Body} = decode_response_header(Response),
+	{?EMQ_PROTOCOL_CMD_CHANNEL_LIST, Status, _Bodylen, Body} = decode_response(Response),
 	{decode_status(Status), decode_channel_list(Body)};
 
 decode({channel_rename, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_RENAME, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_CHANNEL_RENAME, Response);
 
 decode({channel_publish, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_PUBLISH, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_CHANNEL_PUBLISH, Response);
 
 decode({channel_subscribe, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_SUBSCRIBE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_CHANNEL_SUBSCRIBE, Response);
 
 decode({channel_psubscribe, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_PSUBSCRIBE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_CHANNEL_PSUBSCRIBE, Response);
 
 decode({channel_unsubscribe, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_UNSUBSCRIBE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_CHANNEL_UNSUBSCRIBE, Response);
 
 decode({channel_punsubscribe, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_PUNSUBSCRIBE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_CHANNEL_PUNSUBSCRIBE, Response);
 
 decode({channel_delete, Response}) ->
-	decode_response_header_status(?EMQ_PROTOCOL_CMD_CHANNEL_DELETE, Response);
+	decode_response_status(?EMQ_PROTOCOL_CMD_CHANNEL_DELETE, Response);
 
 decode({wait_event, Response}) ->
-	decode_event(decode_response_header(Response)).
+	decode_event(decode_response(Response)).
